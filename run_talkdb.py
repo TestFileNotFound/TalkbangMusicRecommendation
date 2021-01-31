@@ -1,6 +1,8 @@
 # import TalkbangMusicInterface as tmi
+from TalkbangMusicInterface import KakaoMiner as tmiKM
 
 import configparser
+import json
 import os
 
 config_hidden = configparser.ConfigParser()
@@ -25,7 +27,7 @@ def fetch_file_queue(mode="init"):
 
     temp_file_size_dict = dict()
     for file in temp_raw_file_list:
-        file_size = os.path.getsize(RAW_TXT_PATH + file)  # 파일 사이즈는 문자값
+        file_size = os.path.getsize(RAW_TXT_PATH + file)
         if file_size not in temp_file_size_dict:
             temp_file_size_dict[file_size] = [file]
         else:
@@ -46,8 +48,13 @@ if __name__ == "__main__":
 
     if mode == "init":
         raw_file = fetch_file_queue(mode)
-        print(raw_file)
+        platform = tmiKM.backup_platform_definer(RAW_TXT_PATH + raw_file)
+        if platform == "Windows":
+            data = tmiKM.backup_text_parser_windows(RAW_TXT_PATH + raw_file)
+            with open(TXT_DB_PATH + "FULLTXT.json", 'w', encoding="utf-8") as f:
+                json.dump(data, f)
 
     else:  # if mode == "update":
         raw_file_queue = fetch_file_queue(mode)
-        print(raw_file_queue[0:3])
+        for file in raw_file_queue:
+            print(tmiKM.backup_platform_definer(RAW_TXT_PATH + file))
