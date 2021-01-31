@@ -141,4 +141,5 @@ venv/
 DATA_DIR/**/*.json
 DATA_DIR/**/*.txt
 DATA_DIR/**/*.csv
+_config/config_hidden.ini
 _JupyterTest/**/test*.ipynb
