@@ -157,7 +157,7 @@ def backup_text_parser_android(file_path):
     assert os.path.exists(file_path), "파일이 존재하지 않습니다."
 
     import re
-    android_newdate = re.compile(r"^\d{4}년 \d{1,2}월 \d{1,2}일 오[전후] \d{1,2}:\d{2}\n$")
+    android_newdate = re.compile(r"^\d{4}년 \d{1,2}월 \d{1,2}일 오[전후] \d{1,2}:\d{2}[^,]+")
     android_newtime = re.compile(r"^\d{4}년 \d{1,2}월 \d{1,2}일 오[전후] \d{1,2}:\d{2}, .{2,7} : ")
     android_newmember = re.compile(r".*님이 .*님을 초대했습니다\.")
     android_memberout = re.compile(r"^.{2,7}님이 나갔습니다\.")
@@ -194,10 +194,10 @@ def backup_text_parser_android(file_path):
                 )
                 next_loop_continue = False
 
-            line = line.strip()
             if android_newdate.search(line) is not None:
                 continue
-            elif android_newtime.search(line) is not None:
+            line = line.strip()
+            if android_newtime.search(line) is not None:
                 if (android_newmember.search(line) is not None) or (android_memberout.search(line) is not None):
                     continue
 
