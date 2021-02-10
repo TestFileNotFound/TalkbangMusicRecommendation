@@ -1,3 +1,9 @@
+import os
+import re
+
+import pandas as pd
+
+
 def backup_platform_definer(file_path):
     """ PC에서 백업한 내용인지 모바일(Android)에서 백업한 내용인지 확인.
 
@@ -25,10 +31,8 @@ def backup_platform_definer(file_path):
     :return: "Windows" or "Android"
     """
     assert type(file_path) is str, "파일 주소값이 문자열이 아닙니다."
-    import os
     assert os.path.exists(file_path), "파일이 존재하지 않습니다."
 
-    import re
     windows_newdate = re.compile(r"^[- ]+\d{4}년 \d{1,2}월 \d{1,2}일 [월화수목금토일]요일[- ]+\n$")
     android_newdate = re.compile(r"^\d{4}년 \d{1,2}월 \d{1,2}일 오[전후] \d{1,2}:\d{2}\n$")
 
@@ -59,10 +63,8 @@ def backup_text_parser_windows(file_path):
     :return: [dict(), dict(), dict() ...]
     """
     assert type(file_path) is str, "파일 주소값이 문자열이 아닙니다."
-    import os
     assert os.path.exists(file_path), "파일이 존재하지 않습니다."
 
-    import re
     windows_newdate = re.compile(r"^[- ]+\d{4}년 \d{1,2}월 \d{1,2}일 [월화수목금토일]요일[- ]+")
     windows_newtime = re.compile(r"^\[.*\] \[오[전후] \d{1,2}:\d{1,2}\] .*")
     windows_newmember = re.compile(r".*님이 .*님을 초대했습니다\.")
@@ -153,10 +155,8 @@ def backup_text_parser_android(file_path):
     :return: [dict(), dict(), dict() ...]
     """
     assert type(file_path) is str, "파일 주소값이 문자열이 아닙니다."
-    import os
     assert os.path.exists(file_path), "파일이 존재하지 않습니다."
 
-    import re
     android_newdate = re.compile(r"^\d{4}년 \d{1,2}월 \d{1,2}일 오[전후] \d{1,2}:\d{2}[^,]+")
     android_newtime = re.compile(r"^\d{4}년 \d{1,2}월 \d{1,2}일 오[전후] \d{1,2}:\d{2}, .{2,7} : ")
     android_newmember = re.compile(r".*님이 .*님을 초대했습니다\.")
@@ -230,7 +230,7 @@ def backup_text_parser_android(file_path):
 
 
 def kakao_date_parser(some_date):
-    """ 카카오톡 날짜 형태를 DB에 저장할 형태로 변환
+    """ 카카오톡 날짜 형식을 DB에 저장할 형식으로 변환
 
     예시)
     2018년 3월 5일 오후 9:05 -> 180305_2105
@@ -253,3 +253,26 @@ def kakao_date_parser(some_date):
         hour += 12
 
     return f"{year[2:4]:0>2}{month[:-1]:0>2}{day[:-1]:0>2}_{hour:0>2}{minute:0>2}"
+
+
+def datecode_to_date(some_datecode, to_datetime=False):
+    """ DB 날짜 코드 형식을 pandas 날짜 형식으로 변환
+
+    예시)
+    180305_2105 -> "2018-03-05 21:05:00"
+
+    :param some_datecode: 0000년 0월 0일 오[전후] 00:00 형식의 날짜
+    :type some_datecode: str
+    :param to_datetime: False(기본값) - str으로 반환 / True - pd.Timestamp
+    :type to_datetime: bool
+    """
+    # assert type(some_datecode) is str, "날짜 코드값이 문자열이 아닙니다."
+    # assert ('_' in some_datecode) and (len(some_datecode)==11), "날짜 형식이 맞지 않습니다."
+
+    year, month, day, = "20" + some_datecode[0:2], some_datecode[2:4], some_datecode[4:6]
+    hour, minute, second = some_datecode[7:9], some_datecode[9:11], "00"
+
+    if not to_datetime:
+        return year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
+    else:
+        return pd.Timestamp(*list(map(int, [year, month, day, hour, minute, second])))
